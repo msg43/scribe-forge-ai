@@ -4,11 +4,13 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (build-essential + python3-dev needed for webrtcvad C extension)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     git \
     wget \
+    build-essential \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching

@@ -9,8 +9,24 @@ from importlib.util import find_spec
 
 PY_MAJOR, PY_MINOR = sys.version_info[:2]
 PYANNOTE_ALLOWED = (PY_MAJOR, PY_MINOR) < (3, 12)
-RESEMBLYZER_AVAILABLE = find_spec("resemblyzer") is not None
-PYANNOTE_AVAILABLE = PYANNOTE_ALLOWED and (find_spec("pyannote.audio") is not None)
+
+
+def _has_module(name):
+    """Return True if the module is importable.
+
+    importlib.util.find_spec() on a dotted name (e.g. "pyannote.audio") imports
+    the parent package as a side effect; if the parent itself is not installed
+    this raises ModuleNotFoundError instead of returning None. Wrap so callers
+    get a clean boolean for "is this optional dep available?" probes.
+    """
+    try:
+        return find_spec(name) is not None
+    except (ImportError, ModuleNotFoundError, ValueError):
+        return False
+
+
+RESEMBLYZER_AVAILABLE = _has_module("resemblyzer")
+PYANNOTE_AVAILABLE = PYANNOTE_ALLOWED and _has_module("pyannote.audio")
 # Avoid importing huggingface_hub at import time; not needed here
 
 
